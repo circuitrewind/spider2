@@ -2,7 +2,11 @@
 //INCLUDE FILES
 ////////////////////////////////////////////////////////////////////////////////
 #include <arduino.h>
+#include <FS.h>
 #include "lua.h"
+#include "lua_esp.h"
+#include "lua_led.h"
+#include "lua_color.h"
 #include "spider.h"
 
 
@@ -36,6 +40,71 @@ led.box
 bool		can_render		= false;
 lua_State	*lua			= nullptr;
 String		spider_error;
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// INITIALIZE LUA
+////////////////////////////////////////////////////////////////////////////////
+int lua_setup() {
+	if (likely(lua)) {
+		Serial.println(F("Closing lua instance..."));
+		lua_close(lua);
+		lua = nullptr;
+	}
+
+	Serial.println(F("Creating lua instance..."));
+	lua = luaL_newstate();
+
+	Serial.println(F("Loading lua core libraries..."));
+	luaL_openlibs(lua);
+
+	Serial.println(F("Loading lua esp library..."));
+	lua_esp_init(lua);
+
+	Serial.println(F("Loading lua color library..."));
+	lua_color_init(lua);
+
+	Serial.println(F("Loading lua led library..."));
+	lua_led_init(lua);
+
+	//EVAL DOESNT LIKE FS("")
+	Serial.println(F("Creating frame function..."));
+	return spider_eval("function frame()\nend");
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// LOAD A SPIFFS FILE INTO LUA
+////////////////////////////////////////////////////////////////////////////////
+int lua_file(const char *filename) {
+	if (unlikely(!lua)) return -1;
+
+	if (!unlikely(SPIFFS.exists(filename))) {
+		Serial.print(F("Failed to locate lua file: "));
+		Serial.println(filename);
+		return -2;
+	}
+
+	Serial.print(F("Attempting to load lua file: "));
+	Serial.println(filename);
+
+	File	file	= SPIFFS.open(filename, "r");
+
+	if (unlikely(!file)) {
+		Serial.print(F("Failed to load lua file: "));
+		Serial.println(filename);
+		return -3;
+	}
+
+	String	data	= file.readString();
+	file.close();
+
+	return spider_eval(data.c_str());
+}
 
 
 

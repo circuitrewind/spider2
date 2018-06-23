@@ -14,6 +14,8 @@ extern lua_State	*lua;
 extern String		spider_error;
 
 
+int lua_setup();
+int lua_file(const char *filename);
 int spider_eval(const char *script);
 int spider_method(const char *name);
 

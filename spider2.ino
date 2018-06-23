@@ -9,9 +9,6 @@
 #include "server.h"
 #include "wifi.h"
 #include "lua.h"
-#include "lua_esp.h"
-#include "lua_led.h"
-#include "lua_color.h"
 #include "json.h"
 #include "oled.h"
 
@@ -79,37 +76,15 @@ void setup(void){
 	server_setup();
 
 
-	Serial.println(F("Creating lua instance..."));
-	lua = luaL_newstate();
-
-	Serial.println(F("Loading lua core libraries..."));
-	luaL_openlibs(lua);
-
-	Serial.println(F("Loading lua esp library..."));
-	lua_esp_init(lua);
-
-	Serial.println(F("Loading lua color library..."));
-	lua_color_init(lua);
-
-	Serial.println(F("Loading lua led library..."));
-	lua_led_init(lua);
-
-	//EVAL DOESNT LIKE FS("")
-	Serial.println(F("Creating frame function..."));
-	spider_eval("function frame()\nend");
+	//INITIALIZE LUA
+	lua_setup();
 
 
-	if (likely(SPIFFS.exists(F("/boot.lua")))) {
-		Serial.println(F("Attempting to load /boot.lua..."));
-		File	file	= SPIFFS.open(FS("/boot.lua"), "r");
-		String	data	= file.readString();
-		file.close();
-		spider_eval(data.c_str());
-	} else {
-		Serial.println(F("Failed to locate /boot.lua"));
-	}
+	//LOAD THE INITIAL BOOT SCRIPT
+	lua_file(FS("/boot.lua"));
 
 
+	//TEST LUA
 	//EVAL DOESNT LIKE FS("")
 	Serial.println(F("Testing lua script..."));
 	spider_eval("esp.print('Lua is operational')");
