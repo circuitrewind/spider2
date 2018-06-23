@@ -16,3 +16,6 @@
 [submodule "data/scripts"]
 	path = data/scripts
 	url = git@github.com:cosplaylighting/lua-scripts.git
+[submodule "src/pingalive"]
+	path = src/pingalive
+	url = https://github.com/d-a-v/EspGoodies.git
