@@ -23,7 +23,8 @@ ESP8266WebServer _server(80);
 // ??
 ////////////////////////////////////////////////////////////////////////////////
 String getContentType(String filename) {
-	if (_server.hasArg(F("download")))	return F("application/octet-stream");
+//	if (_server.hasArg(F("download")))	return F("application/octet-stream");
+	if (_server.hasArg("download"))		return F("application/octet-stream");
 	if (filename.endsWith(F(".txt")))	return F("text/plain");
 	if (filename.endsWith(F(".lua")))	return F("text/plain");
 	if (filename.endsWith(F(".htm")))	return F("text/html");
