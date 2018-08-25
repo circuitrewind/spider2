@@ -81,7 +81,7 @@ int lua_setup() {
 // LOAD A SPIFFS FILE INTO LUA
 ////////////////////////////////////////////////////////////////////////////////
 int lua_file(const char *filename) {
-	if (unlikely(!lua)) return -1;
+	if (unlikely(!lua  ||  !filename  ||  !*filename)) return -1;
 
 	if (!unlikely(SPIFFS.exists(filename))) {
 		Serial.print(F("Failed to locate lua file: "));
@@ -123,7 +123,7 @@ static int spider_void(lua_State *lua) {
 // EXECUTE A LUA SCRIPT FROM A "C" STRING
 ////////////////////////////////////////////////////////////////////////////////
 int spider_eval(const char *script) {
-	if (unlikely(!lua)) return -1;
+	if (unlikely(!lua  ||  !script  ||  !*script)) return -1;
 
 	int ret;
 	if (unlikely(ret = luaL_dostring(lua, script))) {
@@ -144,7 +144,7 @@ int spider_eval(const char *script) {
 // EXECUTE AN EXISTING LUA METHOD BY NAME
 ////////////////////////////////////////////////////////////////////////////////
 int spider_method(const char *name) {
-	if (!lua) return -1;
+	if (!lua  ||  !name  ||  !*name) return -1;
 
 	lua_getglobal(lua, name);
 
