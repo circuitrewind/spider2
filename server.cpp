@@ -89,11 +89,19 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	// ROOT DIRECTORY, SHOW STATUS INFORMATION
 	////////////////////////////////////////////////////////////////////////////
-	_server.on(F("/"), [](){
+	_server.on(F("/"), []() {
 		_server.client().setNoDelay(true);
 
 		char buf[100] = "";
-		snprintf(buf, sizeof(buf), FS("ESP %d, uptime %d\n"), ESP.getChipId(), millis() / 1000);
+
+		snprintf(
+			buf,
+			sizeof(buf),
+			FS("ESP %d, uptime %d\n"),
+			ESP.getChipId(),
+			millis() / 1000
+		);
+
 		_server.send(200, F("text/plain"), buf);
 	});
 
@@ -106,11 +114,12 @@ void server_setup() {
 	_server.on(F("/eval"), HTTP_POST, []() {
 		_server.client().setNoDelay(true);
 
-		String code = _server.arg(F("code"));
+		const char *code = _server.arg("code");
 
-		if (likely(!spider_eval(code.c_str()))) {
+		if (likely(!spider_eval(code))) {
 			_server.send(200, F("text/plain"), F("OK"));
 		} else {
+			Serial.println(F("Unable to execute LUA script"));
 			Serial.println(spider_error);
 			_server.send(500, F("text/plain"), spider_error);
 		}
@@ -125,16 +134,18 @@ void server_setup() {
 	_server.on(F("/script"), HTTP_POST, []() {
 		_server.client().setNoDelay(true);
 
-		String code = _server.arg(F("code"));
+		const char *code = _server.arg("code");
 
 		//RESET LUA INSTANCE
 		if (unlikely(lua_setup())) {
+			Serial.println(F("Unable set setup LUA instance"));
 			Serial.println(spider_error);
 			_server.send(500, F("text/plain"), spider_error);
 			return;
 		}
 
-		if (unlikely(spider_eval(code.c_str()))) {
+		if (unlikely(spider_eval(code))) {
+			Serial.println(F("Unable set load LUA script"));
 			Serial.println(spider_error);
 			_server.send(500, F("text/plain"), spider_error);
 			return;
@@ -150,6 +161,8 @@ void server_setup() {
 	// RESET MICROCONTROLLER
 	////////////////////////////////////////////////////////////////////////////
 	_server.on(F("/reset"), []() {
+		_server.client().setNoDelay(true);
+		//TODO: _server.client().close();
 		ESP.reset();
 	});
 
@@ -160,6 +173,8 @@ void server_setup() {
 	// RESTART MICROCONTROLLER
 	////////////////////////////////////////////////////////////////////////////
 	_server.on(F("/restart"), []() {
+		_server.client().setNoDelay(true);
+		//TODO: _server.client().close();
 		ESP.restart();
 	});
 
@@ -172,17 +187,16 @@ void server_setup() {
 	_server.on(F("/save"), HTTP_POST, []() {
 		_server.client().setNoDelay(true);
 
-		String code	= _server.arg(F("code"));
-		String name	= _server.arg(F("name"));
+		const char	*code	= _server.arg("code");
+		String		 name	= _server.arg(F("name"));
 
-		if (name.charAt(0) != '/') {
-			name	= "/" + name;
-		}
+		if (name.charAt(0) != '/') name = "/" + name;
 
 		if (unlikely(name == "/")) {
 			String error = F("Invalid file name: ");
-			Serial.println(error + name);
-			_server.send(500, F("text/plain"), error + name);
+			error += name;
+			Serial.println(error);
+			_server.send(500, F("text/plain"), error);
 			return;
 		}
 
@@ -190,8 +204,12 @@ void server_setup() {
 		Serial.println(msg + name);
 
 		File file	= SPIFFS.open(name, "w");
-		file.print(code);
-		file.close();
+		if (file) {
+			file.print(code);
+			file.close();
+		} else {
+			_server.send(500);
+		}
 
 		_server.send(200, F("text/plain"), F("OK"));
 	});
