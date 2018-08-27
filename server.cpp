@@ -102,7 +102,7 @@ void server_setup() {
 			millis() / 1000
 		);
 
-		_server.send(200, F("text/plain"), buf);
+		_server.send(HTTP_OK, F("text/plain"), buf);
 	});
 
 
@@ -117,11 +117,11 @@ void server_setup() {
 		const char *code = _server.arg("code");
 
 		if (likely(!spider_eval(code))) {
-			_server.send(200, F("text/plain"), F("OK"));
+			_server.send(HTTP_OK, F("text/plain"), F("OK"));
 		} else {
 			Serial.println(F("Unable to execute LUA script"));
 			Serial.println(spider_error);
-			_server.send(500, F("text/plain"), spider_error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 		}
 	});
 
@@ -138,20 +138,20 @@ void server_setup() {
 
 		//RESET LUA INSTANCE
 		if (unlikely(lua_setup())) {
-			Serial.println(F("Unable set setup LUA instance"));
+			Serial.println(F("Unable to setup LUA instance"));
 			Serial.println(spider_error);
-			_server.send(500, F("text/plain"), spider_error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 			return;
 		}
 
 		if (unlikely(spider_eval(code))) {
-			Serial.println(F("Unable set load LUA script"));
+			Serial.println(F("Unable to eval LUA script"));
 			Serial.println(spider_error);
-			_server.send(500, F("text/plain"), spider_error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 			return;
 		}
 
-		_server.send(200, F("text/plain"), F("OK"));
+		_server.send(HTTP_OK, F("text/plain"), F("OK"));
 	});
 
 
@@ -196,7 +196,7 @@ void server_setup() {
 			String error = F("Invalid file name: ");
 			error += name;
 			Serial.println(error);
-			_server.send(500, F("text/plain"), error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), error);
 			return;
 		}
 
@@ -204,14 +204,20 @@ void server_setup() {
 		Serial.println(msg + name);
 
 		File file	= SPIFFS.open(name, "w");
+
 		if (file) {
 			file.print(code);
 			file.close();
+
 		} else {
-			_server.send(500);
+			_server.send(
+				HTTP_SERVER_ERROR,
+				F("text/plain"),
+				F("Unable to open file for writing")
+			);
 		}
 
-		_server.send(200, F("text/plain"), F("OK"));
+		_server.send(HTTP_OK, F("text/plain"), F("OK"));
 	});
 
 
@@ -233,26 +239,26 @@ void server_setup() {
 		if (unlikely(name == "/")) {
 			String error = F("Invalid file name: ");
 			Serial.println(error + name);
-			_server.send(500, F("text/plain"), error + name);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), error + name);
 			return;
 		}
 
 		//RESET LUA INSTANCE
 		if (unlikely(lua_setup())) {
 			Serial.println(spider_error);
-			_server.send(500, F("text/plain"), spider_error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 			return;
 		}
 
 		//EXECUTE THE FILE
 		if (unlikely(lua_file(name.c_str()))) {
 			Serial.println(spider_error);
-			_server.send(500, F("text/plain"), spider_error);
+			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 			return;
 		}
 
 		//WE GOOD, LET CLIENT KNOW!
-		_server.send(200, F("text/plain"), F("OK"));
+		_server.send(HTTP_OK, F("text/plain"), F("OK"));
 	});
 
 
@@ -263,7 +269,7 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	_server.on(F("/ping"), []() {
 		_server.client().setNoDelay(true);
-		_server.send(200, F("text/plain"), F("pong"));
+		_server.send(HTTP_OK, F("text/plain"), F("pong"));
 	});
 
 
@@ -286,7 +292,7 @@ void server_setup() {
 
 		String text;
 		root.printTo(text);
-		_server.send(200, F("application/json"), text);
+		_server.send(HTTP_OK, F("application/json"), text);
 	});
 
 
@@ -299,7 +305,7 @@ void server_setup() {
 		_server.client().setNoDelay(true);
 
 		if (unlikely(!handleFileRead(_server.uri()))) {
-			_server.send(404, F("text/plain"), F("File Not Found"));
+			_server.send(HTTP_NOT_FOUND, F("text/plain"), F("File Not Found"));
 		}
 	});
 
