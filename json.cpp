@@ -104,7 +104,7 @@ void json_setup() {
 // LOAD AND PARSE JSON DATA
 ////////////////////////////////////////////////////////////////////////////////
 void json_parse(json_init *init, int count) {
-	File json = SPIFFS.open(FS("/config.json"), "r");
+	File json = SPIFFS.open(LUASTR("/config.json"), "r");
 
 	if (!json) {
 		Serial.println(F("Failed to locate config.json"));

@@ -97,7 +97,7 @@ void server_setup() {
 		snprintf(
 			buf,
 			sizeof(buf),
-			FS("ESP %d, uptime %d\n"),
+			LUASTR("ESP %d, uptime %d\n"),
 			ESP.getChipId(),
 			millis() / 1000
 		);

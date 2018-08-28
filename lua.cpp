@@ -69,9 +69,8 @@ int lua_setup() {
 	Serial.println(F("Loading lua led library..."));
 	lua_led_init(lua);
 
-	//EVAL DOESNT LIKE FS("")
 	Serial.println(F("Creating frame function..."));
-	return spider_eval("function frame()\nend");
+	return spider_eval(LUASTR("function frame()\nend"));
 }
 
 
@@ -169,7 +168,7 @@ int spider_method(const char *name) {
 // LUA 5.2 COMPATIBILITY
 ////////////////////////////////////////////////////////////////////////////////
 static void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
-	luaL_checkstack(L, nup+1, FS("too many upvalues"));
+	luaL_checkstack(L, nup+1, LUASTR("too many upvalues"));
 	for (; l->name != NULL; l++) {  /* fill the table with given functions */
 		int i;
 		lua_pushstring(L, l->name);

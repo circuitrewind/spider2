@@ -24,13 +24,6 @@ ADC_MODE(ADC_VCC);
 
 
 
-static char flash_buffer[100];
-const char *_FS(const void *item) {
-	return strncpy_P(flash_buffer, (const char*)item, sizeof(flash_buffer));
-}
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // INITIALIZE ALL THE THINGS UPON BOOT UP
@@ -81,13 +74,12 @@ void setup(void){
 
 
 	//LOAD THE INITIAL BOOT SCRIPT
-	lua_file(FS("/boot.lua"));
+	lua_file(LUASTR("/boot.lua"));
 
 
 	//TEST LUA
-	//EVAL DOESNT LIKE FS("")
 	Serial.println(F("Testing lua script..."));
-	spider_eval("esp.print('Lua is operational')");
+	spider_eval(LUASTR("esp.print('Lua is operational')"));
 
 	Serial.println(F("RUNNING!"));
 	render_time = 0;
