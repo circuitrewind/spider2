@@ -116,13 +116,14 @@ void server_setup() {
 
 		const char *code = _server.arg("code");
 
-		if (likely(!spider_eval(code))) {
-			_server.send(HTTP_OK, F("text/plain"), F("OK"));
-		} else {
-			Serial.println(F("Unable to execute LUA script"));
+		if (unlikely(spider_eval(code))) {
+			Serial.println(F("Unable to eval LUA script"));
 			Serial.println(spider_error);
 			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
+			return;
 		}
+
+		_server.send(HTTP_OK, F("text/plain"), F("OK"));
 	});
 
 
@@ -145,7 +146,7 @@ void server_setup() {
 		}
 
 		if (unlikely(spider_eval(code))) {
-			Serial.println(F("Unable to eval LUA script"));
+			Serial.println(F("Unable to execute LUA script"));
 			Serial.println(spider_error);
 			_server.send(HTTP_SERVER_ERROR, F("text/plain"), spider_error);
 			return;

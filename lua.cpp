@@ -126,8 +126,7 @@ int spider_eval(const char *script) {
 
 	int ret;
 	if (unlikely(ret = luaL_dostring(lua, script))) {
-		Serial.print(F("error running script: "));
-		Serial.println(spider_error = lua_tostring(lua, -1));
+		spider_error = lua_tostring(lua, -1);
 	}
 
 	//LOCK THE FRAME RENDERER IF WE HAVE SCRIPT ISSUES
@@ -149,10 +148,7 @@ int spider_method(const char *name) {
 
 	int ret;
 	if (unlikely(ret = lua_pcall(lua, 0, 0, 0))) {
-		Serial.print(F("error running method "));
-		Serial.print(name);
-		Serial.print(F("(): "));
-		Serial.println(lua_tostring(lua, -1));
+		spider_error = lua_tostring(lua, -1);
 	}
 
 	//LOCK THE FRAME RENDERER IF WE HAVE SCRIPT ISSUES
