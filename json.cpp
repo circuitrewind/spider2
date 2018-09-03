@@ -181,7 +181,7 @@ void json_parse(json_init *init, int count) {
 	} else {
 		WiFi.softAPConfig(				//	TODO: MAKE THIS JSON CONFIGURABLE
 			IPAddress(192,168,1,1),		//	IP ADDRESS
-			IPAddress(192,168,1,1),		//	DEFAULT GATEWAY
+			IPAddress(0,0,0,0),			//	DEFAULT GATEWAY
 			IPAddress(255,255,255,0)	//	SUBNET MASK
 		);
 		WiFi.mode(WIFI_AP);
