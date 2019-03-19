@@ -111,7 +111,7 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	// EVALUATE A SCRIPT
 	////////////////////////////////////////////////////////////////////////////
-	_server.on(F("/eval"), HTTP_POST, []() {
+	_server.on(F("/eval"), []() {
 		_server.client().setNoDelay(true);
 
 		const char *code = _server.arg("code");
@@ -132,7 +132,7 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	// EXECUTE THE GIVEN LUA SCRIPT BY SPIFFS FILENAME
 	////////////////////////////////////////////////////////////////////////////
-	_server.on(F("/script"), HTTP_POST, []() {
+	_server.on(F("/script"), []() {
 		_server.client().setNoDelay(true);
 
 		const char *code = _server.arg("code");
@@ -185,7 +185,7 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	// SAVE A FILE TO THE SPIFFS
 	////////////////////////////////////////////////////////////////////////////
-	_server.on(F("/save"), HTTP_POST, []() {
+	_server.on(F("/save"), []() {
 		_server.client().setNoDelay(true);
 
 		const char	*code	= _server.arg("code");
@@ -227,7 +227,7 @@ void server_setup() {
 	////////////////////////////////////////////////////////////////////////////
 	// EXECUTE THE GIVEN LUA SCRIPT BY SPIFFS FILENAME
 	////////////////////////////////////////////////////////////////////////////
-	_server.on(F("/run"), HTTP_POST, []() {
+	_server.on(F("/run"), []() {
 		_server.client().setNoDelay(true);
 
 		String name	= _server.arg(F("name"));
