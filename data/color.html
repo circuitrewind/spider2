@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Color Picker</title>
+<script src="/lib/jquery.min.js"></script>
+<script src="/lib/wheel.js"></script>
+<link href="/lib/wheel.css" rel="stylesheet" />
+<style>
+html, body {
+	background:#000;
+}
+.color-block {
+	max-width: 340px;
+	width: 100%;
+	background:none;
+	border:none;
+	outline:none;
+}
+</style>
+</head>
+
+<body>
+
+<input
+	data-id="0"
+	type="text"
+	value="#4466ff"
+	data-wheelcolorpicker=""
+	data-wcp-layout="block"
+	data-wcp-sliders="wvp"
+	data-wcp-cssclass="color-block"
+	data-wcp-autoresize="false">
+<br/>
+
+<input
+	data-id="1"
+	type="text"
+	value="#44ff66"
+	data-wheelcolorpicker=""
+	data-wcp-layout="block"
+	data-wcp-sliders="wvp"
+	data-wcp-cssclass="color-block"
+	data-wcp-autoresize="false">
+<br/>
+
+<input
+	data-id="2"
+	type="text"
+	value="#ff4422"
+	data-wheelcolorpicker=""
+	data-wcp-layout="block"
+	data-wcp-sliders="wvp"
+	data-wcp-cssclass="color-block"
+	data-wcp-autoresize="false">
+<br/>
+
+<input
+	data-id="3"
+	type="text"
+	value="#ff66ff"
+	data-wheelcolorpicker=""
+	data-wcp-layout="block"
+	data-wcp-sliders="wvp"
+	data-wcp-cssclass="color-block"
+	data-wcp-autoresize="false">
+<br/>
+
+
+<script>
+var timeout	= null;
+var force	= false;
+
+$(function(){
+	$('input').on('sliderup', function() {
+		$(this).change();
+		force = true;
+
+	}).on('slidermove', function() {
+		$(this).change();
+		force = false;
+
+	}).change(function() {
+		var that = this;
+
+		if (timeout  &&  !force) return;
+		if (timeout) clearTime(timeout);
+
+		timeout = setTimeout(function() {
+			timeout = null;
+			$.post('/script', {'code':
+				"led.fill(" + $(that).data('id') + ",0x" + $(that).val() + ")\n" +
+				"esp.print( esp.vcc() )\n" +
+				"function frame() end"
+			});
+		}, (force ? 0 : 100));
+
+	});
+});
+</script>
+</body>
+</html>

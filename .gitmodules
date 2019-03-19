@@ -1,0 +1,18 @@
+[submodule "src/color"]
+	path = src/color
+	url = git@github.com:cosplaylighting/color.git
+[submodule "src/led"]
+	path = src/led
+	url = git@github.com:cosplaylighting/led.git
+[submodule "src/binary"]
+	path = src/binary
+	url = git@github.com:cosplaylighting/binary.git
+[submodule "src/elapsedMillis"]
+	path = src/elapsedMillis
+	url = git@github.com:pfeerick/elapsedMillis.git
+[submodule "src/ESP8266TrueRandom"]
+	path = src/ESP8266TrueRandom
+	url = git@github.com:marvinroger/ESP8266TrueRandom.git
+[submodule "data/scripts"]
+	path = data/scripts
+	url = git@github.com:cosplaylighting/lua-scripts.git

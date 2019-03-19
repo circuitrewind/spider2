@@ -1,0 +1,10 @@
+function frame()
+	led.clear()
+	led.write(0, 0, 0xff0000)
+	led.write(1, 0, 0x00ff00)
+	led.write(2, 0, 0x0000ff)
+	led.write(3, 0, 0x00ffff)
+	led.write(4, 0, 0xff00ff)
+	led.write(5, 0, 0xffff00)
+	led.write(6, 0, 0xffffff)
+end

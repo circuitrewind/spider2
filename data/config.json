@@ -1,0 +1,11 @@
+{
+	"wifi":	"station",
+	"ssid":	"ESP-DEV",
+	"pass":	"password",
+	"led":	[
+		{"pin": 0,	"type":"grid",	"width":16,	"height":16},
+		{"pin": 2,	"type":"array",	"length":300},
+		{"pin":14,	"type":"array",	"length":300},
+		{"pin":12,	"type":"array",	"length":300}
+	]
+}
