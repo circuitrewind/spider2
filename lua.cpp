@@ -30,6 +30,9 @@ analog.write(id)
 
 led.line
 led.box
+
+lua_yeild()
+lua_resume()
 */
 
 
