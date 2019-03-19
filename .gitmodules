@@ -7,6 +7,9 @@
 [submodule "src/binary"]
 	path = src/binary
 	url = git@github.com:cosplaylighting/binary.git
+[submodule "src/lua"]
+	path = src/lua
+	url = git@github.com:cosplaylighting/IoT-Lua.git
 [submodule "src/elapsedMillis"]
 	path = src/elapsedMillis
 	url = git@github.com:pfeerick/elapsedMillis.git
