@@ -282,17 +282,19 @@ void server_setup() {
 	_server.on(F("/dir"), []() {
 		_server.client().setNoDelay(true);
 
-		DynamicJsonBuffer json(JSON_ARRAY_SIZE(100));
-		JsonObject&	root	= json.createObject();
-		JsonArray&	files	= root.createNestedArray(F("files"));
+		// CREATE A NEW JSON DOCUMENT
+		DynamicJsonDocument json(JSON_ARRAY_SIZE(100));
+		JsonArray	files	= json.createNestedArray(F("files"));
 
+		// POPULATE THE DOCUMENT WITH OUR LIST OF FILES
 		Dir dir = SPIFFS.openDir("");
 		while (dir.next()) {
 			files.add( dir.fileName() );
 		}
 
+		// SERIALIZE AND OUTPUT TO CLIENT
 		String text;
-		root.printTo(text);
+		serializeJson(json, text);
 		_server.send(HTTP_OK, F("application/json"), text);
 	});
 

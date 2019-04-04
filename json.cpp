@@ -115,22 +115,26 @@ void json_parse(json_init *init, int count) {
 	json.readBytes(bytes, json.size());
 	bytes[json.size()] = NULL;
 
-	DynamicJsonBuffer config(4000);
-	JsonObject &root = config.parseObject(bytes);
+	DynamicJsonDocument root(4000);
 
-	if (!root.success()) {
+	DeserializationError error = deserializeJson(root, bytes);
+
+
+//	JsonObject root = config.parseObject(bytes);
+
+	if (error  ||  root.isNull()) {
 		Serial.println(F("Error parsing JSON content"));
 		free(bytes);
 		return;
 	}
 
 
-	////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// PARSE JSON LED CONFIGURATION
-	////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	int x = -1;
-	JsonArray &leds = root["led"];
-	for (JsonObject &led : leds) {
+	JsonArray leds = root["led"];
+	for (JsonObject led : leds) {
 
 		//IF THIS OBJECT DOESN'T HAVE THE TYPE PROPERTY, IGNORE IT
 		if (!led.containsKey("type")) continue;
