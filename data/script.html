@@ -3,8 +3,9 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link href="/lib/scpro.css" rel="stylesheet" />
-		<script src="/lib/jquery.min.js"></script>
+		<link href="lib/scpro.css" rel="stylesheet" />
+		<script src="lib/jquery.min.js"></script>
+		<script src="lib/ace.js"></script>
 
 		<title>Script Editor</title>
 
@@ -20,34 +21,15 @@
 				font-family:'Source Code Pro', monospace;
 			}
 
-			textarea {
-				width:100%;
-				height:100%;
-				font-family:'Source Code Pro', monospace;
-				background:#33333f;
-				color:#fff;
-				border:0;
-				padding:0;
-				outline:none;
-				overflow:scroll;
-				resize:none;
-				tab-size:4;
-				font-size:1.5em;
-				padding:10px;
-				box-sizing: border-box;
+			::-webkit-scrollbar {
+				height:1em;
 			}
 
-			textarea::-webkit-scrollbar {
-				width:20px;
-				height:20px;
+			::-webkit-scrollbar-track {
+				background:none
 			}
 
-			textarea::-webkit-scrollbar-track {
-				background:rgba(0,0,0,0.05);
-				-webkit-box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
-			}
-
-			textarea::-webkit-scrollbar-thumb {
+			::-webkit-scrollbar-thumb {
 				-webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
 				background-color: rgba(255,255,255,0.1);
 				border-radius:20px;
@@ -103,32 +85,40 @@
 				padding-left:200px;
 			}
 
-			#text-parent {
+			#editor {
 				position:fixed;
 				width:calc(100% - 200px);
 				height:calc(100% - 40px);
-				padding-top:40px;
-			}
-
-			#floater {
-				z-index:2;
-				position:fixed;
-				bottom:0;
-				right:0;
-				width:20px;
-				height:20px;
-				background:#33333f;
-				-webkit-box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+				left:200px;
+				top:40px;
 			}
 		</style>
 
 		<script>"use strict";$(function(){
 
-			//TODO: SYNTAX HIGHLIGHTING
+			// SYNTAX HIGHLIGHTING TEXT EDITOR
+			var editor = ace.edit("editor");
+			editor.session.setMode("ace/mode/lua");
+			editor.setKeyboardHandler("ace/keyboard/sublime");
+			editor.setTheme("ace/theme/dracula");
+			editor.setFontSize(20);
+			editor.setShowPrintMargin(false);
 
-			//UPDATE THE LIST OF FILES
+			editor.setOptions({
+				wrap: "free",
+				fontFamily: "Source Code Pro",
+				useSoftTabs: false,
+				scrollPastEnd: 1.0,
+				showInvisibles: true,
+				vScrollBarAlwaysVisible: true,
+			});
+
+			editor.focus();
+
+
+			// UPDATE THE LIST OF FILES
 			var loadmenu = function() {
-				$.getJSON('/dir', function(json) {
+				$.getJSON('dir', function(json) {
 					$('aside div').remove();
 
 					json['files'].sort();
@@ -138,10 +128,9 @@
 							.click(function(){
 								$('#text-name').val($(this).text().trim());
 								$.get($(this).text().trim(), function(data, status, xhr) {
-									$('#text-code').val(xhr.responseText);
-									$('#text-code').selectionStart = 0;
-									$('#text-code').selectionEnd = 0;
-									$('#text-code').scrollTop(0);
+									editor.setValue(xhr.responseText);
+									editor.scrollToLine(0, false, false, function(){});
+									editor.focus();
 								});
 							})
 						);
@@ -154,8 +143,8 @@
 
 
 			$('#btn-save').click(function(){
-				$.post('/save', {
-					code: $('#text-code').val(),
+				$.post('save', {
+					code: editor.getValue(),
 					name: $('#text-name').val().trim(),
 				}, loadmenu);
 			});
@@ -163,31 +152,8 @@
 
 
 			$('#btn-run').click(function(){
-				$.post('/script', {code: $('#text-code').val()});
+				$.post('script', { code: editor.getValue() });
 			});
-
-
-
-			//TAB KEY FIX
-			$('#text-code').keydown(function(e) {
-				var keyCode = e.keyCode || e.which;
-				if (keyCode != 9) return;
-
-				e.preventDefault();
-				var pos = this.selectionStart;
-
-				$(this).val(
-					$(this).val().substring(0, pos) +
-					"\t" +
-					$(this).val().substring(this.selectionEnd)
-				);
-
-				// put caret at right position again
-				this.selectionStart = this.selectionEnd = pos + 1;
-			});
-
-
-			$('#text-code').focus();
 
 		});</script>
 	</head>
@@ -204,9 +170,17 @@
 				<input type="text" id="text-name" placeholder="File Name" />
 			</nav>
 
-			<div id="text-parent">
-				<textarea id="text-code" autocorrect="off" autocapitalize="none"></textarea>
-			</div>
+<div id="editor">function frame()
+	led.clear()
+	led.write(0, 0, 0xff0000)
+	led.write(1, 0, 0x00ff00)
+	led.write(2, 0, 0x0000ff)
+	led.write(3, 0, 0x00ffff)
+	led.write(4, 0, 0xff00ff)
+	led.write(5, 0, 0xffff00)
+	led.write(6, 0, 0xffffff)
+end
+</div>
 		</main>
 	</body>
 </html>
